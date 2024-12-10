@@ -34,8 +34,10 @@ export class InventoryItemController {
   }
 
   private async create(req: Request, res: Response) {
-    await this._commandBus.send(new CreateInventoryItem(v7(), req.body.skuId));
-    res.status(StatusCodes.ACCEPTED).json({ code: '000', message: 'create inventory item command accepted' });
+    const resultedId = await this._commandBus.send(new CreateInventoryItem(v7(), req.body.skuId));
+    res
+      .status(StatusCodes.ACCEPTED)
+      .json({ code: '000', message: 'create inventory item command accepted', data: { id: resultedId } });
   }
 
   private async addStock(req: Request, res: Response) {

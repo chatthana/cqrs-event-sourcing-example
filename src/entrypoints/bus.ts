@@ -9,6 +9,7 @@ import configuration from '../configuration';
 import { Kafka, Producer, Partitioners, Consumer } from 'kafkajs';
 import { EventBus } from '../core/event';
 import { KafkaEventbus } from '../infrastructure/bus/eventbus';
+import { InventoryItemCreatedEventHandler } from '../services/event_handlers/inventory_item_event_handlers';
 
 (async () => {
   const kafka: Kafka = new Kafka({ brokers: configuration.kafka.brokerList.split(',') });
@@ -17,6 +18,10 @@ import { KafkaEventbus } from '../infrastructure/bus/eventbus';
   await producer.connect();
 
   const kafkaEventBus: EventBus = new KafkaEventbus(inventoryItemKafkaConsumerGroup, producer);
+
+  const inventoryItemCreatedEventHandler = new InventoryItemCreatedEventHandler();
+
+  kafkaEventBus.register(inventoryItemCreatedEventHandler);
 
   const gracefulShutdown = async () => {
     logger.info('Shutting down gracefully...');
@@ -28,7 +33,6 @@ import { KafkaEventbus } from '../infrastructure/bus/eventbus';
     }
   };
 
-  // Handle termination signals for graceful shutdown
   process.on('SIGTERM', async () => {
     await gracefulShutdown();
     process.exit(0);

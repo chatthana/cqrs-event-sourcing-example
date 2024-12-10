@@ -25,6 +25,8 @@ export class CreateInventoryItemCommandHandler implements CommandHandler<CreateI
       const counter = meter.createCounter('created_order(s)');
       counter.add(1);
       span.end();
+
+      return inventoryItem.id;
     });
   }
 }
