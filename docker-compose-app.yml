@@ -1,0 +1,55 @@
+services:
+  webapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    environment:
+      - PORT=3000
+      - ESDB_CONNECTION_STRING=esdb://eventstore.db:2113?tls=false
+      - KAFKA_BROKER_LIST=kafka:29092
+    command: yarn start:api
+    depends_on:
+      - eventstore.db
+      - kafka
+  snapshot-subscriber:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ESDB_CONNECTION_STRING=esdb://eventstore.db:2113?tls=false
+    command: yarn start:snapshot-subscriber
+    depends_on:
+      - eventstore.db
+  esdb-kafka-publisher:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ESDB_CONNECTION_STRING=esdb://eventstore.db:2113?tls=false
+      - KAFKA_BROKER_LIST=kafka:29092
+    command: yarn start:publisher
+    depends_on:
+      - eventstore.db
+      - kafka
+  denormaliser:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/inventory_items
+      - KAFKA_BROKER_LIST=kafka:29092
+    command: yarn start:denormaliser
+    depends_on:
+      - mongodb
+      - kafka
+  eventbus:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - KAFKA_BROKER_LIST=kafka:29092
+    command: yarn start:bus
+    depends_on:
+      - kafka
