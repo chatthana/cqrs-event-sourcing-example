@@ -69,7 +69,7 @@ export class InventoryItemSnapshotSubscription extends EventstoreDBBasePersisten
   }
 
   protected async handle(event: RecordedEvent): Promise<void> {
-    if (Number(event.revision) % 10 === 0) {
+    if (Number(event.revision) % 10 === 0 && Number(event.revision) > 0) {
       const aggregateId: string = event.streamId.split('.')[2]; // pattern = event.inventory-item.{id}
 
       const inventoryItem: InventoryItem = await this._repository.getById(aggregateId);
