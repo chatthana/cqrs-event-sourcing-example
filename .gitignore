@@ -1,0 +1,55 @@
+# Node modules
+node_modules/
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Dependency directories
+jspm_packages/
+
+# Typescript compiled output
+dist/
+build/
+out/
+
+# Optional npm cache directory
+.npm/
+
+# TypeScript specific
+*.tsbuildinfo
+
+# Output of 'npm pack'
+*.tgz
+
+# Yarn Integrity file
+.yarn-integrity
+
+# dotenv environment variables file
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# VS Code specific
+.vscode/
+.history/
+
+# Mac system files
+.DS_Store
+
+# Editor files
+.idea/
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+
+# Coverage directory used by tools
+
+# Build directory
+.build

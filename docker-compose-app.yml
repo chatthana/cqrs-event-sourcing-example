@@ -1,0 +1,61 @@
+services:
+  webapi:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - 3000:3000
+    environment:
+      - PORT=3000
+      - ESDB_CONNECTION_STRING=esdb://eventstore.db:2113?tls=false
+      - KAFKA_BROKER_LIST=kafka-1:29092,kafka-2:29093,kafka-3:29094
+      - MONGODB_URI=mongodb://mongodb:27017/inventory_items
+      - OTLP_ENDPOINT=http://otel-collector:4317
+    command: yarn start:api
+    depends_on:
+      - eventstore.db
+      - kafka-1
+  snapshot-subscriber:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ESDB_CONNECTION_STRING=esdb://eventstore.db:2113?tls=false
+      - OTLP_ENDPOINT=http://otel-collector:4317
+    command: yarn start:snapshot-subscriber
+    depends_on:
+      - eventstore.db
+  esdb-kafka-publisher:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ESDB_CONNECTION_STRING=esdb://eventstore.db:2113?tls=false
+      - KAFKA_BROKER_LIST=kafka-1:29092,kafka-2:29093,kafka-3:29094
+      - OTLP_ENDPOINT=http://otel-collector:4317
+    command: yarn start:publisher
+    depends_on:
+      - eventstore.db
+      - kafka-1
+  denormaliser:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - MONGODB_URI=mongodb://mongodb:27017/inventory_items
+      - KAFKA_BROKER_LIST=kafka-1:29092,kafka-2:29093,kafka-3:29094
+      - OTLP_ENDPOINT=http://otel-collector:4317
+    command: yarn start:denormaliser
+    depends_on:
+      - mongodb
+      - kafka-1
+  eventbus:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - KAFKA_BROKER_LIST=kafka-1:29092,kafka-2:29093,kafka-3:29094
+      - OTLP_ENDPOINT=http://otel-collector:4317
+    command: yarn start:bus
+    depends_on:
+      - kafka-1
